@@ -54,6 +54,8 @@ Mappa rapida (tutti in `packages/ui/src/index.ts`):
 - **Formattazione:** `fmtNumber`, `fmtCurrency`, `fmtPercent`, `fmtDate`, `fmtTime`, `fmtDateSmart` — mai `toLocaleString` a mano
 - Da HeroUI, riesportati: `Button`, `Avatar`, `Chip`, `Spinner`, `Progress`, `Link`, `Divider`
 
+**Logo.** Non si disegna e non si scrive come testo: si prende da `resources/logos/` (mappa e regole in `resources/README.md`). In breve: `logo.svg` su sfondi scuri (sito, sidebar), `logo_light.png` su fondo chiaro, `logo-icon.png` per la sidebar compressa, la cartella `resources/favicon/` intera in `public/` per favicon, PWA e iOS. Mai ricolorato, mai animato, mai sotto 126px se è il lockup.
+
 Regole di composizione che il codice non impone da solo:
 1. Una sola azione primaria (`color="primary"`) per schermo, in alto a destra o nel footer sticky del form.
 2. Ogni contenitore di dati passa per i quattro stati: `loading`, `error`, `empty`, `noResults`. `DataTable` e `ChartFrame` li hanno come prop: usale.
@@ -77,6 +79,7 @@ Italiano, tu informale, sentence case, verbo per primo. Il bottone dice cosa fa 
 - [ ] Contrasto ≥ 4.5:1 sul testo (Storybook addon-a11y)
 - [ ] Nessun hex nel codice dell'app: solo classi Tailwind del preset o `var(--pai-*)`
 - [ ] Testi in italiano, formattazione via `fmt*`
+- [ ] Logo preso da `resources/logos/`, variante giusta per lo sfondo, `alt="ProfessionAI"`
 
 ## Token e build
 
@@ -89,6 +92,7 @@ Config Tailwind per una nuova app: copia `packages/ui/tailwind.config.cjs`.
 - **Manca un componente:** costruiscilo con HeroUI + token dentro `packages/ui/src/components/`, con story dei quattro stati, poi esportalo da `index.ts`. Non importare librerie UI terze nell'app.
 - **Manca un'icona:** placeholder testuale + riga in `packages/ui/src/icons-gap.md`; va disegnata nel set proprietario.
 - **Manca un colore:** non manca. Ricontrolla `semantic.status` e le scale.
+- **Manca un formato del logo** (es. SVG su fondo chiaro): non generarlo da un PNG e non ridisegnarlo. Usa il formato più vicino tra quelli in `resources/logos/` e segnala la lacuna in `resources/README.md`.
 - **Manca un archetipo:** scrivilo in `archetypes/` con wireframe ASCII, componenti, regole, anti-pattern, e proponilo.
 
 ## Struttura del repository
@@ -96,10 +100,11 @@ Config Tailwind per una nuova app: copia `packages/ui/tailwind.config.cjs`.
 ```
 professionai-ds/
 ├── SKILL.md              ← questo file
-├── DECISIONS.md          ← 16 decisioni canoniche con i valori scartati
+├── DECISIONS.md          ← 17 decisioni canoniche con i valori scartati
 ├── tokens/               ← tokens.json + build.mjs → dist/
 ├── registers/            ← operational.md (nuovo) · marketing.md · learner.md (v1)
 ├── archetypes/           ← list-detail · overview-kpi · form-multistep · settings
 ├── packages/ui/          ← @professionai/ui: componenti React, stories, config Tailwind
-└── references/           ← content.md (copy), v1 design system integrale
+├── references/           ← content.md (copy), v1 design system integrale
+└── resources/            ← asset binari: logos/ (lockup, monocromi, marchio, social) · favicon/ (svg, ico, png, PWA) + README con le regole d'uso
 ```
