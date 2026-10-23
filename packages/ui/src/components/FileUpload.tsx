@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type DragEvent } from "react";
-import { Button } from "@heroui/react";
+import { Button } from "../ui/button";
 import { cn } from "../lib/cn";
 import type { FieldProps } from "./Field";
 import { fmtNumber } from "../lib/format";
@@ -19,25 +19,25 @@ export function FileUpload({ label, help, error, optional, accept, multiple, max
   const onDrop = (e: DragEvent) => { e.preventDefault(); setOver(false); add(e.dataTransfer.files); };
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">{label}{optional && <span className="text-ink-muted font-normal"> (opzionale)</span>}</label>
+      <label htmlFor={id} className="text-sm font-medium">{label}{optional && <span className="font-normal text-ink-muted"> (opzionale)</span>}</label>
       <div onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)} onDrop={onDrop}
-        className={cn("rounded-md border border-dashed p-6 text-center text-sm transition-colors duration-fast bg-surface-sunken",
-          over ? "border-accent bg-accent-soft" : error ? "border-[var(--pai-semantic-status-danger)]" : "border-line-strong")}>
+        className={cn("rounded-md border border-dashed bg-surface-sunken p-6 text-center text-sm transition-colors duration-fast",
+          over ? "border-brand bg-brand-soft" : error ? "border-danger" : "border-line-strong")}>
         <input ref={input} id={id} type="file" className="sr-only" accept={accept} multiple={multiple} onChange={(e) => add(e.target.files)} />
-        <p>Trascina qui i file o <Button size="sm" variant="light" color="primary" onPress={() => input.current?.click()}>scegli dal computer</Button></p>
-        <p className="text-xs text-ink-muted mt-1">{accept ? `${accept.replace(/\./g, "").toUpperCase()} · ` : ""}max {maxSizeMb} MB{multiple ? " per file" : ""}</p>
+        <p>Trascina qui i file o <Button type="button" size="sm" variant="link" className="px-0" onClick={() => input.current?.click()}>scegli dal computer</Button></p>
+        <p className="mt-1 text-xs text-ink-muted">{accept ? `${accept.replace(/\./g, "").toUpperCase()} · ` : ""}max {maxSizeMb} MB{multiple ? " per file" : ""}</p>
       </div>
       {files.length > 0 && (
         <ul className="divide-y divide-line rounded-md border border-line">
           {files.map((f, i) => (
-            <li key={`${f.name}-${i}`} className="flex items-center justify-between px-3 h-control text-sm">
-              <span className="truncate">{f.name} <span className="text-ink-faint tabular-nums">· {fmtSize(f.size)}</span></span>
-              <Button size="sm" variant="light" onPress={() => onChange(files.filter((_, j) => j !== i))}>Rimuovi</Button>
+            <li key={`${f.name}-${i}`} className="flex h-control items-center justify-between px-3 text-sm">
+              <span className="truncate">{f.name} <span className="tabular-nums text-ink-faint">· {fmtSize(f.size)}</span></span>
+              <Button type="button" size="sm" variant="ghost" onClick={() => onChange(files.filter((_, j) => j !== i))}>Rimuovi</Button>
             </li>
           ))}
         </ul>
       )}
-      {error ? <p className="text-xs text-[var(--pai-semantic-status-danger)]">{error}</p> : help ? <p className="text-xs text-ink-muted">{help}</p> : null}
+      {error ? <p className="text-xs text-danger">{error}</p> : help ? <p className="text-xs text-ink-muted">{help}</p> : null}
     </div>
   );
 }

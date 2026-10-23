@@ -19,7 +19,7 @@ export function ChartFrame({ title, period, legend, height = 280, loading, error
       </figcaption>
       <div style={{ height }} className="relative">
         {loading ? <Skeleton className="absolute inset-0" />
-          : error ? <Alert status="danger" title="Grafico non disponibile" action={{ label: "Riprova", onPress: error.retry }}>{error.message}</Alert>
+          : error ? <Alert status="danger" title="Grafico non disponibile" action={{ label: "Riprova", onClick: error.retry }}>{error.message}</Alert>
           : empty ? <EmptyState title="Nessun dato nel periodo" description="Allarga il periodo per vedere l'andamento." />
           : children}
       </div>

@@ -34,7 +34,7 @@ export function SidebarNav({ items, collapsed, onSelect }: { items: NavItem[]; c
           {i.icon && <span className="[&>svg]:size-4 shrink-0">{i.icon}</span>}
           {!collapsed && <span className="truncate">{i.label}</span>}
           {!collapsed && i.badge !== undefined && <span className="ml-auto text-xs tabular-nums text-neutral-400">{i.badge}</span>}
-          {i.active && <span aria-hidden className="ml-auto size-1.5 rounded-pill bg-accent" />}
+          {i.active && <span aria-hidden className="ml-auto size-1.5 rounded-pill bg-brand" />}
         </a>
       ))}
     </nav>

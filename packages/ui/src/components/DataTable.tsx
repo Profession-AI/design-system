@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Checkbox } from "@heroui/react";
+import { Checkbox } from "../ui/checkbox";
 import { cn } from "../lib/cn";
 import { DensityScope, useRegister, type Density } from "../lib/Register";
 import { SkeletonRows } from "./Skeleton";
@@ -37,7 +37,7 @@ export interface DataTableProps<T> {
   // ---- quattro stati obbligatori ----
   loading?: boolean;
   error?: { message: string; retry: () => void };
-  empty?: { title: string; description?: string; action?: { label: string; onPress: () => void } };
+  empty?: { title: string; description?: string; action?: { label: string; onClick: () => void } };
   /** Mostrato quando rows è vuoto ma esistono filtri attivi: messaggio diverso dal vuoto. */
   noResults?: { onReset: () => void };
   hasActiveFilters?: boolean;
@@ -75,9 +75,9 @@ export function DataTable<T>(p: DataTableProps<T>) {
 
   const body = () => {
     if (p.loading) return <SkeletonRows rows={8} cols={p.columns.length} />;
-    if (p.error) return <div className="p-4"><Alert status="danger" title="Impossibile caricare i dati" action={{ label: "Riprova", onPress: p.error.retry }}>{p.error.message}</Alert></div>;
+    if (p.error) return <div className="p-4"><Alert status="danger" title="Impossibile caricare i dati" action={{ label: "Riprova", onClick: p.error.retry }}>{p.error.message}</Alert></div>;
     if (p.rows.length === 0 && p.hasActiveFilters && p.noResults)
-      return <EmptyState title="Nessun risultato per questi filtri" description="Prova ad allargare il periodo o a togliere un filtro." action={{ label: "Azzera filtri", onPress: p.noResults.onReset }} />;
+      return <EmptyState title="Nessun risultato per questi filtri" description="Prova ad allargare il periodo o a togliere un filtro." action={{ label: "Azzera filtri", onClick: p.noResults.onReset }} />;
     if (p.rows.length === 0 && p.empty) return <EmptyState {...p.empty} />;
     return null;
   };
@@ -92,7 +92,7 @@ export function DataTable<T>(p: DataTableProps<T>) {
             <tr className="h-row">
               {p.selectable && (
                 <th scope="col" className="w-10 px-cell-x text-left">
-                  <Checkbox size="sm" aria-label="Seleziona tutto" isSelected={!!allSelected} isIndeterminate={!!someSelected && !allSelected} onValueChange={toggleAll} />
+                  <Checkbox aria-label="Seleziona tutto" checked={allSelected ? true : someSelected ? "indeterminate" : false} onCheckedChange={toggleAll} />
                 </th>
               )}
               {p.columns.map((c) => {
@@ -117,13 +117,13 @@ export function DataTable<T>(p: DataTableProps<T>) {
                 const isSel = p.selected?.has(k);
                 return (
                   <tr key={k}
-                    className={cn("h-row transition-colors duration-fast", p.onRowClick && "cursor-pointer hover:bg-surface-sunken", isSel && "bg-accent-soft")}
+                    className={cn("h-row transition-colors duration-fast", p.onRowClick && "cursor-pointer hover:bg-surface-sunken", isSel && "bg-brand-soft")}
                     onClick={p.onRowClick ? () => p.onRowClick!(row) : undefined}
                     tabIndex={p.onRowClick ? 0 : undefined}
                     onKeyDown={p.onRowClick ? (e) => { if (e.key === "Enter") p.onRowClick!(row); } : undefined}>
                     {p.selectable && (
                       <td className="px-cell-x" onClick={(e) => e.stopPropagation()}>
-                        <Checkbox size="sm" aria-label={`Seleziona riga ${k}`} isSelected={!!isSel} onValueChange={() => toggle(k)} />
+                        <Checkbox aria-label={`Seleziona riga ${k}`} checked={!!isSel} onCheckedChange={() => toggle(k)} />
                       </td>
                     )}
                     {p.columns.map((c) => (

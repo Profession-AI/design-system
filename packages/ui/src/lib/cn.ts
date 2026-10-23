@@ -1,3 +1,2 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-export const cn = (...i: ClassValue[]) => twMerge(clsx(i));
+// Stesso `cn` usato dalle primitive shadcn (pacchetto `cn`: clsx + tailwind-merge compilati).
+export { cn } from "cn";

@@ -1,5 +1,4 @@
-// @professionai/ui — entry point
-import "../../../tokens/dist/tokens.css";
+// @professionai/ui — entry point. Lo stile si importa a parte: `@import "@professionai/ui/styles.css"`.
 
 export * from "./lib/Register";
 export * from "./lib/format";
@@ -37,5 +36,13 @@ export * from "./components/Tooltip";
 export * from "./charts/palette";
 export * from "./charts/ChartFrame";
 
-// Componenti HeroUI riesportati per non far importare due librerie nelle app.
-export { Button, Avatar, Chip, Spinner, Progress, Link, Divider } from "@heroui/react";
+// Primitive shadcn riesportate così com'è, per non far importare due librerie nelle app.
+// Le altre (dialog, sheet, select, tabs…) sono già avvolte dai componenti qui sopra; se servono
+// a basso livello: `import { … } from "@professionai/ui/ui/<nome>"`.
+export { Button, buttonVariants } from "./ui/button";
+export { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+export { Spinner } from "./ui/spinner";
+export { Progress } from "./ui/progress";
+export { Separator } from "./ui/separator";
+export { Label } from "./ui/label";
+export { Input } from "./ui/input";

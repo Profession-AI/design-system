@@ -1,6 +1,11 @@
-// Genera da tokens.json:  dist/tokens.css  dist/tailwind.preset.cjs  dist/heroui.theme.cjs  dist/tokens.flat.json
+// Genera da tokens.json:  dist/tokens.css  dist/tailwind.css  dist/tokens.flat.json
 // Uso: node tokens/build.mjs
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+//
+//   tokens.css    variabili CSS --pai-* (framework-agnostiche) + variabili semantiche shadcn
+//                 (--background, --primary, …) derivate dai token, per registro e dark mode.
+//   tailwind.css  tema Tailwind 4 (@theme) che espone i token come utility; importa tokens.css.
+//                 Da importare dopo "tailwindcss" e "shadcn/tailwind.css" (vedi packages/ui/src/styles.css).
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,6 +13,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const src = JSON.parse(readFileSync(join(here, "tokens.json"), "utf8"));
 const out = join(here, "dist");
 mkdirSync(out, { recursive: true });
+for (const legacy of ["tailwind.preset.cjs", "heroui.theme.cjs"]) if (existsSync(join(out, legacy))) rmSync(join(out, legacy));
 
 // ---------- 1. Espansione scale 50–900 ----------
 const hex2rgb = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
@@ -55,7 +61,43 @@ for (const [s, tok] of Object.entries(src.semantic.status)) {
 }
 writeFileSync(join(out, "tokens.flat.json"), JSON.stringify(flat, null, 2));
 
-// ---------- 3. CSS ----------
+// ---------- 3. Variabili semantiche shadcn (decisione 18) ----------
+// Ogni valore è un token: mai un hex nuovo qui. "accent" è il grigio di hover di shadcn, non il teal:
+// l'accento brand si chiama `brand` nelle utility (bg-brand, text-brand-strong, bg-brand-soft).
+const c = (k) => flat[k];
+const N = (s) => c(`color.neutral.${s}`);
+const WHITE = c("color.white"), BLACK = c("color.black"), TEAL = c("color.teal.DEFAULT");
+const charts = Object.fromEntries(c("chart.categorical").slice(0, 5).map((v, i) => [`chart-${i + 1}`, v]));
+const sidebar = {
+  sidebar: N(950), "sidebar-foreground": N(50), "sidebar-primary": TEAL, "sidebar-primary-foreground": BLACK,
+  "sidebar-accent": "rgba(255,255,255,0.10)", "sidebar-accent-foreground": WHITE, "sidebar-border": "rgba(255,255,255,0.10)", "sidebar-ring": c("focus.on-dark"),
+};
+const SEM = {
+  light: {
+    background: WHITE, foreground: N(900), card: WHITE, "card-foreground": N(900), popover: WHITE, "popover-foreground": N(900),
+    primary: TEAL, "primary-foreground": BLACK, secondary: N(100), "secondary-foreground": N(900),
+    muted: N(100), "muted-foreground": N(600), accent: N(100), "accent-foreground": N(900),
+    destructive: statusExt.danger.fg, "destructive-foreground": WHITE,
+    border: N(200), input: N(200), ring: c("focus.product"), ...charts, ...sidebar,
+  },
+  dark: {
+    background: N(900), foreground: N(50), card: N(800), "card-foreground": N(50), popover: N(800), "popover-foreground": N(50),
+    primary: TEAL, "primary-foreground": BLACK, secondary: N(800), "secondary-foreground": N(50),
+    muted: N(800), "muted-foreground": N(400), accent: N(800), "accent-foreground": N(50),
+    destructive: c("color.red.400"), "destructive-foreground": BLACK,
+    border: N(800), input: N(700), ring: c("focus.on-dark"), ...charts, ...sidebar,
+  },
+  marketing: {
+    background: c("color.site.canvas"), foreground: WHITE, card: c("color.site.panel-end"), "card-foreground": WHITE, popover: c("color.site.panel-end"), "popover-foreground": WHITE,
+    primary: TEAL, "primary-foreground": BLACK, secondary: c("color.site.glass"), "secondary-foreground": WHITE,
+    muted: c("color.site.glass"), "muted-foreground": "rgba(255,255,255,0.7)", accent: c("color.site.ring"), "accent-foreground": WHITE,
+    destructive: c("color.red.400"), "destructive-foreground": BLACK,
+    border: c("color.site.ring"), input: c("color.site.ring"), ring: c("focus.on-dark"), ...charts, ...sidebar,
+  },
+};
+const semBlock = (vars, indent = "  ") => Object.entries(vars).map(([k, v]) => `${indent}--${k}: ${v};`).join("\n");
+
+// ---------- 4. tokens.css ----------
 const cssName = (k) => "--pai-" + k.replace(/\./g, "-").replace(/-DEFAULT$/, "");
 const cssVal = (v) => {
   if (Array.isArray(v)) return typeof v[0] === "number" ? `cubic-bezier(${v.join(",")})` : v.map((s) => (s.includes(" ") ? `"${s}"` : s)).join(", ");
@@ -64,8 +106,11 @@ const cssVal = (v) => {
 };
 let css = `/* Generato da tokens/build.mjs — non modificare a mano */\n:root {\n`;
 for (const [k, v] of Object.entries(flat)) css += `  ${cssName(k)}: ${cssVal(v)};\n`;
-css += `}\n\n/* Superfici per registro (decisione 16) */
-.pai-operational, .pai-learner {
+css += `}\n
+/* Superfici per registro (decisione 16). Le stesse variabili valgono su :root così i portali
+   (dialog, select, tooltip: montati su <body>) ereditano il registro operativo chiaro;
+   RegisterRoot copia le classi di registro e .dark anche su <html>. */
+:root, .pai-operational, .pai-learner {
   --pai-surface-shell: radial-gradient(120% 120% at 20% 0%, var(--pai-color-app-shell-start), var(--pai-color-app-shell-end));
   --pai-surface-panel: var(--pai-color-white);
   --pai-surface-raised: var(--pai-color-white);
@@ -75,13 +120,17 @@ css += `}\n\n/* Superfici per registro (decisione 16) */
   --pai-text: var(--pai-color-neutral-900);
   --pai-text-muted: var(--pai-color-neutral-600);
   --pai-text-faint: var(--pai-color-neutral-400);
-  --pai-accent: var(--pai-color-teal);
-  --pai-accent-strong: var(--pai-color-teal-700);
-  --pai-accent-soft: var(--pai-color-teal-50);
+  --pai-brand: var(--pai-color-teal);
+  --pai-brand-strong: var(--pai-color-teal-700);
+  --pai-brand-soft: var(--pai-color-teal-50);
   --pai-focus: var(--pai-focus-product);
+  /* shadcn (decisione 18) */
+${semBlock(SEM.light)}
+}
+.pai-operational, .pai-learner {
   color: var(--pai-text); font-family: var(--pai-font-family-product); font-size: var(--pai-font-size-base); line-height: var(--pai-font-lineHeight-body);
 }
-.pai-operational.dark, .pai-learner.dark {
+.dark, .pai-operational.dark, .pai-learner.dark {
   --pai-surface-panel: var(--pai-color-neutral-900);
   --pai-surface-raised: var(--pai-color-neutral-800);
   --pai-surface-sunken: var(--pai-color-neutral-950);
@@ -90,20 +139,28 @@ css += `}\n\n/* Superfici per registro (decisione 16) */
   --pai-text: var(--pai-color-neutral-50);
   --pai-text-muted: var(--pai-color-neutral-400);
   --pai-text-faint: var(--pai-color-neutral-600);
-  --pai-accent-soft: rgba(0,204,178,0.12);
+  --pai-brand-soft: rgba(0,204,178,0.12);
   --pai-focus: var(--pai-focus-on-dark);
+${semBlock(SEM.dark)}
+  color-scheme: dark;
 }
 .pai-marketing {
   --pai-surface-panel: var(--pai-color-site-canvas);
+  --pai-surface-raised: var(--pai-color-site-panel-end);
+  --pai-surface-sunken: var(--pai-color-site-footer);
   --pai-border: var(--pai-color-site-ring);
+  --pai-border-strong: var(--pai-color-site-ring-strong);
   --pai-text: var(--pai-color-white);
   --pai-text-muted: rgba(255,255,255,0.7);
+  --pai-text-faint: rgba(255,255,255,0.45);
+  --pai-brand-soft: rgba(0,204,178,0.12);
   --pai-focus: var(--pai-focus-on-dark);
-  color: var(--pai-text); font-family: var(--pai-font-family-display); background: var(--pai-color-site-canvas);
+${semBlock(SEM.marketing)}
+  color: var(--pai-text); font-family: var(--pai-font-family-display); background: var(--pai-color-site-canvas); color-scheme: dark;
 }
 
 /* Densità (decisione 12) */
-.pai-density-comfortable, .pai-operational, .pai-learner {
+:root, .pai-density-comfortable, .pai-operational, .pai-learner {
   --pai-row: var(--pai-density-comfortable-row); --pai-control: var(--pai-density-comfortable-control);
   --pai-cell-x: var(--pai-density-comfortable-cell-x); --pai-font-ui: var(--pai-density-comfortable-font);
 }
@@ -111,6 +168,9 @@ css += `}\n\n/* Superfici per registro (decisione 16) */
   --pai-row: var(--pai-density-compact-row); --pai-control: var(--pai-density-compact-control);
   --pai-cell-x: var(--pai-density-compact-cell-x); --pai-font-ui: var(--pai-density-compact-font);
 }
+/* I controlli shadcn di taglia default seguono la densità (40px comfortable, 32px compact).
+   Regola non stratificata: vince sulle utility; per un'altezza diversa usa size="sm" | "lg" | "icon". */
+[data-slot="button"][data-size="default"], [data-slot="input"], [data-slot="select-trigger"][data-size="default"] { height: var(--pai-control); }
 
 /* Focus ring unico */
 .pai-operational :focus-visible, .pai-learner :focus-visible, .pai-marketing :focus-visible {
@@ -120,58 +180,78 @@ css += `}\n\n/* Superfici per registro (decisione 16) */
 `;
 writeFileSync(join(out, "tokens.css"), css);
 
-// ---------- 4. Tailwind preset ----------
-const scaleOf = (name) => Object.fromEntries(Object.entries(flat).filter(([k]) => k.startsWith(`color.${name}.`)).map(([k, v]) => [k.split(".").pop(), v]));
-const tw = {
-  theme: { extend: {
-    colors: {
-      teal: scaleOf("teal"), "light-green": scaleOf("light-green"), purple: scaleOf("purple"), orange: scaleOf("orange"),
-      blue: scaleOf("blue"), red: scaleOf("red"), neutral: scaleOf("neutral"),
-      success: statusExt.success.fg, warning: statusExt.warning.fg, danger: statusExt.danger.fg, info: statusExt.info.fg,
-      surface: { panel: "var(--pai-surface-panel)", raised: "var(--pai-surface-raised)", sunken: "var(--pai-surface-sunken)" },
-      line: { DEFAULT: "var(--pai-border)", strong: "var(--pai-border-strong)" },
-      ink: { DEFAULT: "var(--pai-text)", muted: "var(--pai-text-muted)", faint: "var(--pai-text-faint)" },
-      accent: { DEFAULT: "var(--pai-accent)", strong: "var(--pai-accent-strong)", soft: "var(--pai-accent-soft)" },
-    },
-    fontFamily: { display: flat["font.family.display"], product: flat["font.family.product"], reading: flat["font.family.reading"], mono: flat["font.family.mono"] },
-    fontSize: Object.fromEntries(Object.entries(flat).filter(([k]) => k.startsWith("font.size.")).map(([k, v]) => [k.split(".").pop(), v])),
-    borderRadius: { xs: "4px", sm: "8px", md: "12px", lg: "16px", xl: "24px", pill: "999px" },
-    boxShadow: { sm: cssVal(flat["shadow.sm"]), xl: cssVal(flat["shadow.xl"]), none: "none" },
-    spacing: { row: "var(--pai-row)", control: "var(--pai-control)", "cell-x": "var(--pai-cell-x)", sidebar: flat["layout.sidebar-expanded"], "sidebar-sm": flat["layout.sidebar-collapsed"], topbar: flat["layout.topbar"] },
-    maxWidth: { content: flat["layout.content-max"], reading: flat["layout.reading-max"] },
-    letterSpacing: { heading: flat["font.tracking.heading"] },
-    transitionDuration: { fast: "150ms", enter: "225ms", leave: "195ms", standard: "300ms" },
-    transitionTimingFunction: { enter: cssVal(flat["motion.easing.enter"]), sidebar: cssVal(flat["motion.easing.sidebar"]), reveal: cssVal(flat["motion.easing.reveal"]) },
-  } },
-};
-writeFileSync(join(out, "tailwind.preset.cjs"), `// Generato — non modificare\nmodule.exports = ${JSON.stringify(tw, null, 2)};\n`);
+// ---------- 5. tailwind.css (tema Tailwind 4) ----------
+const scaleOf = (name) => Object.entries(flat).filter(([k]) => k.startsWith(`color.${name}.`)).map(([k, v]) => [k.split(".").pop(), v]);
+const fontList = (arr) => arr.map((s) => (s.includes(" ") ? `"${s}"` : s)).join(", ");
+let tw = `/* Generato da tokens/build.mjs — non modificare a mano.
+   Tema Tailwind 4 del design system. Ordine di import in un'app:
+     @import "tailwindcss"; @import "tw-animate-css"; @import "shadcn/tailwind.css"; @import "@professionai/ui/styles.css";
+   (styles.css del pacchetto importa questo file). */
+@import "./tokens.css";
 
-// ---------- 5. HeroUI theme ----------
-const hero = {
-  layout: { radius: { small: "8px", medium: "12px", large: "16px" }, borderWidth: { small: "1px", medium: "1px", large: "2px" }, disabledOpacity: 0.5 },
-  themes: {
-    light: { colors: {
-      background: "#FFFFFF", foreground: flat["color.neutral.900"], focus: flat["focus.product"],
-      primary: { ...scaleOf("teal"), DEFAULT: flat["color.teal"], foreground: "#000000" },
-      secondary: { ...scaleOf("purple"), DEFAULT: flat["color.purple"], foreground: "#FFFFFF" },
-      success: { ...scaleOf("teal"), DEFAULT: statusExt.success.fg, foreground: "#FFFFFF" },
-      warning: { ...scaleOf("orange"), DEFAULT: statusExt.warning.fg, foreground: "#000000" },
-      danger:  { ...scaleOf("red"), DEFAULT: statusExt.danger.fg, foreground: "#FFFFFF" },
-      default: { ...scaleOf("neutral"), DEFAULT: flat["color.neutral.200"], foreground: flat["color.neutral.900"] },
-      content1: "#FFFFFF", content2: flat["color.neutral.50"], content3: flat["color.neutral.100"], content4: flat["color.neutral.200"],
-    } },
-    dark: { colors: {
-      background: flat["color.neutral.900"], foreground: flat["color.neutral.50"], focus: flat["focus.on-dark"],
-      primary: { ...scaleOf("teal"), DEFAULT: flat["color.teal"], foreground: "#000000" },
-      secondary: { ...scaleOf("purple"), DEFAULT: flat["color.purple"], foreground: "#FFFFFF" },
-      success: { ...scaleOf("teal"), DEFAULT: flat["color.teal.400"], foreground: "#000000" },
-      warning: { ...scaleOf("orange"), DEFAULT: flat["color.orange.400"], foreground: "#000000" },
-      danger:  { ...scaleOf("red"), DEFAULT: flat["color.red.400"], foreground: "#000000" },
-      default: { ...scaleOf("neutral"), DEFAULT: flat["color.neutral.700"], foreground: flat["color.neutral.50"] },
-      content1: flat["color.neutral.900"], content2: flat["color.neutral.800"], content3: flat["color.neutral.700"], content4: flat["color.neutral.600"],
-    } },
-  },
-};
-writeFileSync(join(out, "heroui.theme.cjs"), `// Generato — passare a heroui() in tailwind.config: plugins: [heroui(require('./tokens/dist/heroui.theme.cjs'))]\nmodule.exports = ${JSON.stringify(hero, null, 2)};\n`);
+@theme inline {
+  /* Famiglie brand (scale derivate, decisione 3/8) */
+`;
+for (const name of ["teal", "light-green", "purple", "orange", "blue", "red", "neutral"])
+  for (const [k, v] of scaleOf(name)) tw += `  ${k === "DEFAULT" ? `--color-${name}` : `--color-${name}-${k}`}: ${v};\n`;
+tw += `  --color-black: ${BLACK};\n  --color-white: ${WHITE};\n`;
+tw += `\n  /* Stati (decisione 8): solo Badge, Alert, validazione, bordi */\n`;
+for (const s of ["success", "warning", "danger", "info"]) tw += `  --color-${s}: ${statusExt[s].fg};\n  --color-${s}-soft: ${statusExt[s].bg};\n  --color-${s}-line: ${statusExt[s].border};\n`;
+tw += `
+  /* Superfici e testo per registro (cambiano con .pai-* e .dark) */
+  --color-surface-panel: var(--pai-surface-panel);
+  --color-surface-raised: var(--pai-surface-raised);
+  --color-surface-sunken: var(--pai-surface-sunken);
+  --color-line: var(--pai-border);
+  --color-line-strong: var(--pai-border-strong);
+  --color-ink: var(--pai-text);
+  --color-ink-muted: var(--pai-text-muted);
+  --color-ink-faint: var(--pai-text-faint);
+  --color-brand: var(--pai-brand);
+  --color-brand-strong: var(--pai-brand-strong);
+  --color-brand-soft: var(--pai-brand-soft);
 
-console.log(`✓ ${Object.keys(flat).length} token → dist/tokens.css, tailwind.preset.cjs, heroui.theme.cjs, tokens.flat.json`);
+  /* Variabili semantiche shadcn (decisione 18) */
+`;
+for (const k of Object.keys(SEM.light)) tw += `  --color-${k}: var(--${k});\n`;
+tw += `
+  /* Raggi (decisione 3): scala fissa, non derivata da --radius */
+`;
+for (const k of ["xs", "sm", "md", "lg", "xl", "pill"]) tw += `  --radius-${k}: ${flat[`radius.${k}`]};\n`;
+tw += `  --radius-2xl: ${flat["radius.xl"]};\n`;
+tw += `
+  /* Tipografia (decisione 11) */
+  --font-sans: ${fontList(flat["font.family.product"])};
+  --font-display: ${fontList(flat["font.family.display"])};
+  --font-product: ${fontList(flat["font.family.product"])};
+  --font-reading: ${fontList(flat["font.family.reading"])};
+  --font-mono: ${fontList(flat["font.family.mono"])};
+`;
+for (const [k, v] of Object.entries(flat).filter(([k]) => k.startsWith("font.size."))) tw += `  --text-${k.split(".").pop()}: ${v};\n`;
+tw += `  --tracking-heading: ${flat["font.tracking.heading"]};\n  --leading-heading: ${flat["font.lineHeight.heading"]};\n  --leading-body: ${flat["font.lineHeight.body"]};\n  --leading-dense: ${flat["font.lineHeight.dense"]};\n`;
+tw += `
+  /* Ombre (decisione 2) */
+  --shadow-sm: ${cssVal(flat["shadow.sm"])};
+  --shadow-xl: ${cssVal(flat["shadow.xl"])};
+
+  /* Densità e layout */
+  --spacing-row: var(--pai-row);
+  --spacing-control: var(--pai-control);
+  --spacing-cell-x: var(--pai-cell-x);
+  --spacing-sidebar: ${flat["layout.sidebar-expanded"]};
+  --spacing-sidebar-sm: ${flat["layout.sidebar-collapsed"]};
+  --spacing-topbar: ${flat["layout.topbar"]};
+  --container-content: ${flat["layout.content-max"]};
+  --container-reading: ${flat["layout.reading-max"]};
+
+  /* Motion */
+  --ease-enter: ${cssVal(flat["motion.easing.enter"])};
+  --ease-sidebar: ${cssVal(flat["motion.easing.sidebar"])};
+  --ease-reveal: ${cssVal(flat["motion.easing.reveal"])};
+}
+
+`;
+for (const [k, v] of Object.entries(flat).filter(([k]) => k.startsWith("motion.duration."))) tw += `@utility duration-${k.split(".").pop()} { transition-duration: ${v}; }\n`;
+writeFileSync(join(out, "tailwind.css"), tw);
+
+console.log(`✓ ${Object.keys(flat).length} token → dist/tokens.css, tailwind.css, tokens.flat.json`);

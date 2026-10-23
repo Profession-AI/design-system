@@ -9,7 +9,7 @@ export function Stepper({ steps, current, onStepClick }: { steps: Step[]; curren
     <ol className="flex items-center gap-2 text-sm" aria-label="Passaggi">
       {steps.map((s, i) => {
         const done = i < current, active = i === current;
-        const dot = s.hasError ? "bg-[var(--pai-semantic-status-danger)] text-white" : done ? "bg-accent text-black" : active ? "border-2 border-accent text-accent" : "border border-line-strong text-ink-faint";
+        const dot = s.hasError ? "bg-[var(--pai-semantic-status-danger)] text-white" : done ? "bg-brand text-black" : active ? "border-2 border-brand text-brand" : "border border-line-strong text-ink-faint";
         const inner = (
           <span className={cn("flex items-center gap-2", active ? "text-ink font-medium" : done ? "text-ink" : "text-ink-faint")}>
             <span aria-hidden className={cn("size-6 shrink-0 rounded-pill grid place-items-center text-xs font-semibold tabular-nums", dot)}>{s.hasError ? "!" : done ? "✓" : i + 1}</span>
@@ -19,7 +19,7 @@ export function Stepper({ steps, current, onStepClick }: { steps: Step[]; curren
         return (
           <li key={s.key} className="flex items-center gap-2" aria-current={active ? "step" : undefined}>
             {done && onStepClick ? <button type="button" className="rounded-xs" onClick={() => onStepClick(i)}>{inner}</button> : inner}
-            {i < steps.length - 1 && <span aria-hidden className={cn("h-px w-8", done ? "bg-accent" : "bg-line")} />}
+            {i < steps.length - 1 && <span aria-hidden className={cn("h-px w-8", done ? "bg-brand" : "bg-line")} />}
           </li>
         );
       })}

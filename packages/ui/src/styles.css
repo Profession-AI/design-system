@@ -1,0 +1,17 @@
+/* @professionai/ui — foglio di stile unico. In un'app: `@import "@professionai/ui/styles.css";` e nient'altro
+   (non ripetere @import "tailwindcss" né la variante dark: sono già qui). */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../../../tokens/dist/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* I componenti del pacchetto vanno scansionati anche quando è importato da node_modules. */
+@source "./";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}

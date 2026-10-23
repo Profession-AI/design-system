@@ -1,0 +1,202 @@
+/* Generato da tokens/build.mjs — non modificare a mano.
+   Tema Tailwind 4 del design system. Ordine di import in un'app:
+     @import "tailwindcss"; @import "tw-animate-css"; @import "shadcn/tailwind.css"; @import "@professionai/ui/styles.css";
+   (styles.css del pacchetto importa questo file). */
+@import "./tokens.css";
+
+@theme inline {
+  /* Famiglie brand (scale derivate, decisione 3/8) */
+  --color-teal-50: #EBFBF9;
+  --color-teal-100: #D6F7F3;
+  --color-teal-200: #ADEFE6;
+  --color-teal-300: #7AE4D7;
+  --color-teal-400: #19E8CA;
+  --color-teal-500: #00CCB2;
+  --color-teal-600: #00A792;
+  --color-teal-700: #00A08C;
+  --color-teal-800: #005E52;
+  --color-teal-900: #003932;
+  --color-teal: #00CCB2;
+  --color-light-green-50: #F5FFFA;
+  --color-light-green-100: #EBFFF5;
+  --color-light-green-200: #D8FFEA;
+  --color-light-green-300: #BFFFDD;
+  --color-light-green-400: #A2FFCE;
+  --color-light-green-500: #84FFBE;
+  --color-light-green-600: #6CD19C;
+  --color-light-green-700: #54A37A;
+  --color-light-green-800: #42805F;
+  --color-light-green-900: #254735;
+  --color-light-green: #84FFBE;
+  --color-purple-50: #F6F5FE;
+  --color-purple-100: #ECEBFD;
+  --color-purple-200: #D9D6FC;
+  --color-purple-300: #C2BDFA;
+  --color-purple-400: #A59EF7;
+  --color-purple-500: #8980F5;
+  --color-purple-600: #7069C9;
+  --color-purple-700: #58529D;
+  --color-purple-800: #3F3B71;
+  --color-purple-900: #262445;
+  --color-purple: #8980F5;
+  --color-orange-50: #FEF6EB;
+  --color-orange-100: #FDEDD6;
+  --color-orange-200: #FBDBAE;
+  --color-orange-300: #F8C57B;
+  --color-orange-400: #F4AA3E;
+  --color-orange-500: #F18F01;
+  --color-orange-600: #C67501;
+  --color-orange-700: #9A5C01;
+  --color-orange-800: #6F4200;
+  --color-orange-900: #432800;
+  --color-orange: #F18F01;
+  --color-blue-50: #EDF7FB;
+  --color-blue-100: #DBEFF7;
+  --color-blue-200: #B7DEEF;
+  --color-blue-300: #8BCAE5;
+  --color-blue-400: #55B1D9;
+  --color-blue-500: #1F99CD;
+  --color-blue-600: #197DA8;
+  --color-blue-700: #146283;
+  --color-blue-800: #0E465E;
+  --color-blue-900: #092B39;
+  --color-blue: #1F99CD;
+  --color-red-50: #FEF0F1;
+  --color-red-100: #FDE1E2;
+  --color-red-200: #FAC3C5;
+  --color-red-300: #F79EA1;
+  --color-red-400: #F47276;
+  --color-red-500: #F0454B;
+  --color-red-600: #C5393E;
+  --color-red-700: #9A2C30;
+  --color-red-800: #6E2023;
+  --color-red-900: #431315;
+  --color-red: #F0454B;
+  --color-neutral-50: #FAFAFA;
+  --color-neutral-100: #F4F4F5;
+  --color-neutral-200: #E4E4E7;
+  --color-neutral-300: #D4D4D8;
+  --color-neutral-400: #A1A1AA;
+  --color-neutral-500: #71717A;
+  --color-neutral-600: #52525B;
+  --color-neutral-700: #3F3F46;
+  --color-neutral-800: #27272A;
+  --color-neutral-900: #18181B;
+  --color-neutral-950: #09090B;
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+
+  /* Stati (decisione 8): solo Badge, Alert, validazione, bordi */
+  --color-success: #005E52;
+  --color-success-soft: #EBFBF9;
+  --color-success-line: #ADEFE6;
+  --color-warning: #9A5C01;
+  --color-warning-soft: #FEF6EB;
+  --color-warning-line: #FBDBAE;
+  --color-danger: #C5393E;
+  --color-danger-soft: #FEF0F1;
+  --color-danger-line: #FAC3C5;
+  --color-info: #146283;
+  --color-info-soft: #EDF7FB;
+  --color-info-line: #B7DEEF;
+
+  /* Superfici e testo per registro (cambiano con .pai-* e .dark) */
+  --color-surface-panel: var(--pai-surface-panel);
+  --color-surface-raised: var(--pai-surface-raised);
+  --color-surface-sunken: var(--pai-surface-sunken);
+  --color-line: var(--pai-border);
+  --color-line-strong: var(--pai-border-strong);
+  --color-ink: var(--pai-text);
+  --color-ink-muted: var(--pai-text-muted);
+  --color-ink-faint: var(--pai-text-faint);
+  --color-brand: var(--pai-brand);
+  --color-brand-strong: var(--pai-brand-strong);
+  --color-brand-soft: var(--pai-brand-soft);
+
+  /* Variabili semantiche shadcn (decisione 18) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Raggi (decisione 3): scala fissa, non derivata da --radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+  --radius-2xl: 24px;
+
+  /* Tipografia (decisione 11) */
+  --font-sans: Figtree, Inter, system-ui, sans-serif;
+  --font-display: "General Sans", Montserrat, system-ui, sans-serif;
+  --font-product: Figtree, Inter, system-ui, sans-serif;
+  --font-reading: "Atkinson Hyperlegible", Figtree, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 40px;
+  --text-display: 56px;
+  --tracking-heading: -0.033em;
+  --leading-heading: 1.1;
+  --leading-body: 1.5;
+  --leading-dense: 1.35;
+
+  /* Ombre (decisione 2) */
+  --shadow-sm: 0px 1px 2px 0px rgba(0,0,0,0.06);
+  --shadow-xl: 0px 24px 48px -12px rgba(0,0,0,0.25);
+
+  /* Densità e layout */
+  --spacing-row: var(--pai-row);
+  --spacing-control: var(--pai-control);
+  --spacing-cell-x: var(--pai-cell-x);
+  --spacing-sidebar: 264px;
+  --spacing-sidebar-sm: 72px;
+  --spacing-topbar: 56px;
+  --container-content: 1280px;
+  --container-reading: 680px;
+
+  /* Motion */
+  --ease-enter: cubic-bezier(0.215,0.61,0.355,1);
+  --ease-sidebar: cubic-bezier(0.455,0.03,0.515,0.955);
+  --ease-reveal: cubic-bezier(0.65,0,0.35,1);
+}
+
+@utility duration-fast { transition-duration: 150ms; }
+@utility duration-enter { transition-duration: 225ms; }
+@utility duration-leave { transition-duration: 195ms; }
+@utility duration-standard { transition-duration: 300ms; }

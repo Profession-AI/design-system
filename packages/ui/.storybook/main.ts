@@ -1,7 +1,13 @@
 import type { StorybookConfig } from "@storybook/react-vite";
+import tailwindcss from "@tailwindcss/vite";
+
 const config: StorybookConfig = {
-  stories: ["../src/stories/**/*.stories.@(ts|tsx)", "../src/stories/**/*.mdx"],
-  addons: ["@storybook/addon-essentials", "@storybook/addon-a11y"],
+  stories: ["../src/stories/**/*.mdx", "../src/stories/**/*.stories.@(ts|tsx)"],
+  addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
   framework: { name: "@storybook/react-vite", options: {} },
+  viteFinal: async (cfg) => {
+    cfg.plugins = [...(cfg.plugins ?? []), tailwindcss()];
+    return cfg;
+  },
 };
 export default config;

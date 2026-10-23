@@ -1,5 +1,5 @@
 import { cn } from "../lib/cn";
-export type Status = "success" | "warning" | "danger" | "info" | "neutral" | "accent";
+export type Status = "success" | "warning" | "danger" | "info" | "neutral" | "brand";
 
 const styles: Record<Status, string> = {
   success: "bg-[var(--pai-semantic-status-success-bg)] text-[var(--pai-semantic-status-success)] border-[var(--pai-semantic-status-success-border)]",
@@ -7,7 +7,7 @@ const styles: Record<Status, string> = {
   danger:  "bg-[var(--pai-semantic-status-danger-bg)]  text-[var(--pai-semantic-status-danger)]  border-[var(--pai-semantic-status-danger-border)]",
   info:    "bg-[var(--pai-semantic-status-info-bg)]    text-[var(--pai-semantic-status-info)]    border-[var(--pai-semantic-status-info-border)]",
   neutral: "bg-[var(--pai-semantic-status-neutral-bg)] text-[var(--pai-semantic-status-neutral)] border-[var(--pai-semantic-status-neutral-border)]",
-  accent:  "bg-accent-soft text-accent-strong border-teal-200",
+  brand:   "bg-brand-soft text-brand-strong border-teal-200",
 };
 
 /** Stato di un oggetto. Testo sempre presente: il colore da solo non basta (a11y). Punto opzionale per legende. */
